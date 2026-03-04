@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    // Retorna a pagina da lista de usuarios
     public function index()
     {
-        $users = User::all();
+        $users = User::all(); // Pega os usuarios do banco de dados
         return view('users.index', compact('users'));
     }
 
