@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\ReceitaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+
 
 Route::get('/', function () {
     return view('home');
@@ -31,3 +33,25 @@ Route::post('/perfil/editar/{user}', [UserController::class, 'update'])
 
 Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])
     ->name('users.destroy');
+
+    //
+    // RECEITAS
+    //
+
+    Route::get('/receitas', [ReceitaController::class, 'index'])
+    ->name('receitas.index');
+
+Route::get('/receitas/create', [ReceitaController::class, 'create'])
+    ->name('receitas.create');
+
+Route::post('/receitas', [ReceitaController::class, 'store'])
+    ->name('receitas.store');
+
+Route::get('/receitas/{receita}/edit', [ReceitaController::class, 'edit'])
+    ->name('receitas.edit');
+
+Route::put('/receitas/{receita}', [ReceitaController::class, 'update'])
+    ->name('receitas.update');
+
+Route::delete('/receitas/{receita}', [ReceitaController::class, 'destroy'])
+    ->name('receitas.destroy');
