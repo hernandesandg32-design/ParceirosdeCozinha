@@ -4,6 +4,9 @@
 
 @section('content')
 
-<h1>Bem vindo ao Parceiros de Cozinha</h1>
+<!-- aqui é a pagina principal -->
+
+<h1>Bem vindo ao ee  Parceiros de Cozinha</h1>
+
 
 @endsection

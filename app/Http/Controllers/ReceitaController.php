@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Receita;
 
+
 class ReceitaController extends Controller
 {
     // Exibir todas as receitas
