@@ -53,3 +53,14 @@ Route::put('/receitas/{receita}', [ReceitaController::class, 'update'])
 
 Route::delete('/receitas/{receita}', [ReceitaController::class, 'destroy'])
     ->name('receitas.destroy');
+
+
+Route::get('/login', function () {
+    dd('Oi Lorena');
+})->name('login');
+
+
+Route::post('/logout', function () {
+    // auth()->logout();
+    dd("Tchau Lorena");
+})->name('logout');
