@@ -20,24 +20,40 @@ class UserController extends Controller
         return view('users.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
+    // Apenas o método store — adicione ao seu UserController existente
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'name'     => ['required', 'string', 'min:2', 'max:100'],
+        'email'    => ['required', 'email', 'unique:users,email'],
+        'password' => ['required', 'min:8', 'confirmed'],
+    ], [
+        'name.required'      => 'O nome é obrigatório.',
+        'name.min'           => 'O nome deve ter pelo menos 2 caracteres.',
+        'name.max'           => 'O nome pode ter no máximo 100 caracteres.',
+        'email.required'     => 'O e-mail é obrigatório.',
+        'email.email'        => 'Informe um e-mail válido.',
+        'email.unique'       => 'Este e-mail já está cadastrado.',
+        'password.required'  => 'A senha é obrigatória.',
+        'password.min'       => 'A senha deve ter pelo menos 8 caracteres.',
+        'password.confirmed' => 'As senhas não coincidem.',
+    ]);
 
-        return redirect()->route('users.index')
-            ->with('success', 'Usuário criado com sucesso!');
-    }
+    $user = User::create([
+        'name'     => $request->name,
+        'email'    => $request->email,
+        'password' => $request->password, // o cast 'hashed' cuida do bcrypt
+    ]);
 
+    // Envia o e-mail de verificação
+    event(new \Illuminate\Auth\Events\Registered($user));
+
+    // Loga o usuário automaticamente após cadastro
+    auth()->login($user);
+
+    return redirect()->route('verification.notice');
+}
     public function show(User $user)
     {
         return view('users.show', compact('user'));
