@@ -21,6 +21,8 @@ return new class extends Migration
             $table->enum('dificuldade', ['fácil', 'médio', 'difícil'])->default('fácil');
             $table->decimal('custo_medio', 8, 2)->nullable();
             $table->enum('status', ['publicada', 'pendente', 'oculta'])->default('pendente');
+
+            $table->bigInteger('user_id')->nullable(false)->constraint();
             $table->timestamps();
         });
     }

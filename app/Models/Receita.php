@@ -7,15 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Receita extends Model
 {
     protected $fillable = [
-        'titulo',
-        'descricao',
-        'data_publicacao',
-        'endereco_video',
-        'tempo_preparo',
-        'dificuldade',
-        'custo_medio',
-        'status',
-        'user_id',
+        'titulo', 'descricao', 'tempo_preparo', 'dificuldade',
+        'custo_medio', 'endereco_video', 'status', 'data_publicacao', 'user_id',
+    ];
+
+    protected $casts = [
+        'data_publicacao' => 'date',
     ];
 
     public function user()
@@ -25,16 +22,16 @@ class Receita extends Model
 
     public function ingredientes()
     {
-        return $this->hasMany(Ingrediente::class)->orderBy('ordem');
+        return $this->hasMany(Ingrediente::class);
     }
 
     public function passos()
     {
-        return $this->hasMany(Passo::class)->orderBy('numero');
+        return $this->hasMany(Passo::class)->orderBy('ordem');
     }
 
     public function estaCompleta(): bool
     {
-        return $this->ingredientes()->count() > 0 && $this->passos()->count() > 0;
+        return $this->ingredientes()->exists() && $this->passos()->exists();
     }
 }
