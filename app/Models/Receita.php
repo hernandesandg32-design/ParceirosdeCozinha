@@ -14,6 +14,27 @@ class Receita extends Model
         'tempo_preparo',
         'dificuldade',
         'custo_medio',
-        'status'
+        'status',
+        'user_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function ingredientes()
+    {
+        return $this->hasMany(Ingrediente::class)->orderBy('ordem');
+    }
+
+    public function passos()
+    {
+        return $this->hasMany(Passo::class)->orderBy('numero');
+    }
+
+    public function estaCompleta(): bool
+    {
+        return $this->ingredientes()->count() > 0 && $this->passos()->count() > 0;
+    }
 }
