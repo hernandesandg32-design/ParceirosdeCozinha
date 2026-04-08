@@ -60,6 +60,7 @@ class ReceitaController extends Controller
     public function edit(Receita $receita)
     {
         $this->authorize('update', $receita);
+        $receita->load(['ingredientes', 'passos']);
         return view('receitas.edit', compact('receita'));
     }
 
@@ -67,7 +68,7 @@ class ReceitaController extends Controller
     {
         $this->authorize('update', $receita);
 
-        $request->validate([
+        $res = $request->validate([
             'titulo'         => ['required', 'string', 'max:255'],
             'descricao'      => ['required', 'string'],
             'tempo_preparo'  => ['nullable', 'string', 'max:50'],
@@ -84,7 +85,7 @@ class ReceitaController extends Controller
             'endereco_video.url'  => 'Insira uma URL válida para o vídeo.',
         ]);
 
-        $receita->update($request->validated());
+        $receita->update($res);
 
         return redirect()
             ->route('receitas.edit', $receita)

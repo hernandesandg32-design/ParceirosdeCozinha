@@ -37,7 +37,7 @@ class ReceitaPolicy
      */
     public function update(User $user, Receita $receita): bool
     {
-        return false;
+        return true;
     }
 
     /**

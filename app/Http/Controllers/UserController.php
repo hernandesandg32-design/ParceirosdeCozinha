@@ -56,7 +56,11 @@ public function store(Request $request)
 }
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        $user = auth()->user(); // ou como você estiver pegando o usuário
+
+    $receitas = \App\Models\Receita::where('user_id', $user->id)->get();
+
+    return view('users.show', compact('user', 'receitas'));
     }
 
     public function edit(User $user)

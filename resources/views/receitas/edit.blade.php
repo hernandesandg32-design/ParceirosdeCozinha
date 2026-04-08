@@ -10,14 +10,10 @@
         <h1 class="page-title">Editar Receita</h1>
         <p class="page-subtitle">{{ $receita->titulo }}</p>
     </div>
-    <a href="{{ route('receitas.ingredientes.edit', $receita) }}" class="btn btn-outline">
-        Ingredientes & Passos
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-    </a>
+    <span class="badge badge--status badge--{{ $receita->status }}">{{ ucfirst($receita->status) }}</span>
 </div>
 
+{{-- ALERTAS --}}
 @if(session('success'))
     <div class="alert alert-success">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -27,10 +23,21 @@
     </div>
 @endif
 
+@if(session('error'))
+    <div class="alert alert-danger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        {{ session('error') }}
+    </div>
+@endif
+
+{{-- ═══════════════════════════════════════════════════════════
+     BLOCO 1 — INFORMAÇÕES BÁSICAS
+════════════════════════════════════════════════════════════ --}}
 <div class="form-card">
     <div class="form-card__header">
-        <h2 class="form-card__title">Informações Básicas</h2>
-        <span class="badge badge--status badge--{{ $receita->status }}">{{ ucfirst($receita->status) }}</span>
+        <h2 class="form-card__title">📝 Informações Básicas</h2>
     </div>
 
     @include('partials._errors')
@@ -144,4 +151,166 @@
         </div>
     </form>
 </div>
+
+{{-- ═══════════════════════════════════════════════════════════
+     BLOCO 2 — INGREDIENTES E PASSOS
+════════════════════════════════════════════════════════════ --}}
+<div class="section-divider">
+    <span>Ingredientes & Modo de Preparo</span>
+</div>
+
+@if(session('success_ingrediente') || session('success_passo'))
+    <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        {{ session('success_ingrediente') ?? session('success_passo') }}
+    </div>
+@endif
+
+<div class="row g-4 mb-4">
+
+    {{-- INGREDIENTES --}}
+    <div class="col-lg-6">
+        <div class="form-card h-100">
+            <div class="form-card__header">
+                <h2 class="form-card__title">🥕 Ingredientes</h2>
+            </div>
+
+            @if($receita->ingredientes->count())
+                <ul class="ingredient-list mb-3">
+                    @foreach($receita->ingredientes as $ingrediente)
+                        <li class="ingredient-item">
+                            <div>
+                                <strong>{{ $ingrediente->nome }}</strong>
+                                @if($ingrediente->quantidade)
+                                    <span class="text-muted"> — {{ $ingrediente->quantidade }}</span>
+                                @endif
+                            </div>
+                            <form action="{{ route('receitas.ingredientes.destroy', [$receita, $ingrediente]) }}" method="POST">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-remove" title="Remover">✕</button>
+                            </form>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-muted small mb-3">Nenhum ingrediente adicionado ainda.</p>
+            @endif
+
+            <form action="{{ route('receitas.ingredientes.store', $receita) }}" method="POST">
+                @csrf
+                <div class="row g-2">
+                    <div class="col-7">
+                        <input
+                            type="text"
+                            name="nome"
+                            class="form-control form-control-sm @error('nome') is-invalid @enderror"
+                            placeholder="Nome do ingrediente *"
+                            value="{{ old('nome') }}"
+                        >
+                        @error('nome')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-5">
+                        <input
+                            type="text"
+                            name="quantidade"
+                            class="form-control form-control-sm @error('quantidade') is-invalid @enderror"
+                            placeholder="Quantidade"
+                            value="{{ old('quantidade') }}"
+                        >
+                        @error('quantidade')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary-orange btn-sm w-100">
+                            + Adicionar ingrediente
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- PASSOS --}}
+    <div class="col-lg-6">
+        <div class="form-card h-100">
+            <div class="form-card__header">
+                <h2 class="form-card__title">👨‍🍳 Modo de Preparo</h2>
+            </div>
+
+            @if($receita->passos->count())
+                <ol class="passo-list mb-3">
+                    @foreach($receita->passos as $passo)
+                        <li class="passo-item">
+                            <div class="passo-numero">{{ $passo->ordem }}</div>
+                            <div class="passo-texto flex-grow-1">{{ $passo->descricao }}</div>
+                            <form action="{{ route('receitas.passos.destroy', [$receita, $passo]) }}" method="POST">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-remove" title="Remover">✕</button>
+                            </form>
+                        </li>
+                    @endforeach
+                </ol>
+            @else
+                <p class="text-muted small mb-3">Nenhum passo adicionado ainda.</p>
+            @endif
+
+            <form action="{{ route('receitas.passos.store', $receita) }}" method="POST">
+                @csrf
+                <textarea
+                    name="descricao"
+                    rows="3"
+                    class="form-control form-control-sm @error('descricao') is-invalid @enderror"
+                    placeholder="Descreva este passo do preparo... *"
+                >{{ old('descricao') }}</textarea>
+                @error('descricao')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+                <button type="submit" class="btn btn-primary-orange btn-sm w-100 mt-2">
+                    + Adicionar passo
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════
+     BLOCO 3 — PUBLICAR
+════════════════════════════════════════════════════════════ --}}
+<div class="form-card">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+        <div>
+            @if($receita->estaCompleta())
+                <span class="badge-completa">✅ Receita completa e pronta para publicar!</span>
+            @else
+                <span class="badge-pendente">⚠️ Adicione ao menos 1 ingrediente e 1 passo para publicar.</span>
+            @endif
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('receitas.index') }}" class="btn btn-outline">
+                ← Voltar para receitas
+            </a>
+
+            @if($receita->estaCompleta() && $receita->status !== 'publicada')
+                <form action="{{ route('receitas.publicar', $receita) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-success-green">
+                        🚀 Publicar receita
+                    </button>
+                </form>
+            @elseif($receita->status === 'publicada')
+                <span class="badge-completa">🌐 Receita já publicada</span>
+            @endif
+        </div>
+
+    </div>
+</div>
+
 @endsection
