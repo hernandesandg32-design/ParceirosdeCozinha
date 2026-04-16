@@ -116,4 +116,14 @@ class ReceitaController extends Controller
         $receita->delete();
         return redirect()->route('receitas.index')->with('success', 'Receita deletada!');
     }
+
+    public function show(Receita $receita)
+{
+    // Só exibe receitas publicadas (visitantes não veem rascunhos)
+    abort_if($receita->status !== 'publicada', 404);
+
+    $receita->load(['user', 'ingredientes', 'passos', 'curtidas']);
+
+    return view('receitas.show', compact('receita'));
+}
 }

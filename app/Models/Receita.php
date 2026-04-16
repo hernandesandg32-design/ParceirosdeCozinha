@@ -8,7 +8,7 @@ class Receita extends Model
 {
     protected $fillable = [
         'titulo', 'descricao', 'tempo_preparo', 'dificuldade',
-        'custo_medio', 'endereco_video', 'status', 'data_publicacao', 'user_id',
+        'custo_medio', 'endereco_video', 'image', 'status', 'data_publicacao', 'user_id',
     ];
 
     protected $casts = [
@@ -28,6 +28,18 @@ class Receita extends Model
     public function passos()
     {
         return $this->hasMany(Passo::class)->orderBy('ordem');
+    }
+
+    public function curtidas()
+    {
+        return $this->hasMany(Curtida::class);
+    }
+
+     // Verifica se o usuário autenticado já curtiu
+    public function curtidaPorMim(): bool
+    {
+        if (!auth()->check()) return false;
+        return $this->curtidas()->where('user_id', auth()->id())->exists();
     }
 
     public function estaCompleta(): bool

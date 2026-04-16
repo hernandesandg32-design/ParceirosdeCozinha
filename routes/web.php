@@ -9,9 +9,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\CurtidaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/receitas/{receita}', [ReceitaController::class, 'show'])->name('receitas.show');
 
 // ─── AUTENTICAÇÃO ─────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -63,7 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/receitas/{receita}/passos',         [PassoController::class, 'store'])->name('receitas.passos.store');
     Route::delete('/receitas/{receita}/passos/{passo}', [PassoController::class, 'destroy'])->name('receitas.passos.destroy');
-
+    Route::post('/receitas/{receita}/curtir', [CurtidaController::class, 'toggle'])->name('receitas.curtir');
     // Publicar
     Route::post('/receitas/{receita}/publicar',       [ReceitaController::class, 'publicar'])->name('receitas.publicar');
 });

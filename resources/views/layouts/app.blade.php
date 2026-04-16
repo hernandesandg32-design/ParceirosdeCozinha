@@ -225,6 +225,8 @@
             .form-card { padding: 1.25rem; }
         }
         </style>
+
+        @stack('styles')
 </head>
 
 <body>
