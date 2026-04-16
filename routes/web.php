@@ -38,6 +38,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/cadastre-se',  [UserController::class, 'create'])->name('users.create');
 Route::post('/cadastre-se', [UserController::class, 'store'])->name('users.store');
 
+// Perfil público — acessível por qualquer pessoa (ex: via card de receita)
+Route::get('/u/{user}', [UserController::class, 'publicProfile'])->name('users.public');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/usuarios',              [UserController::class, 'index'])->name('users.index');
     Route::get('/perfil',                [UserController::class, 'show'])->name('users.show');
@@ -56,7 +59,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/receitas/{receita}',                 [ReceitaController::class, 'update'])->name('receitas.update');
     Route::delete('/receitas/{receita}',              [ReceitaController::class, 'destroy'])->name('receitas.destroy');
 
-    // Etapa 2: ingredientes e passos
     Route::get('/receitas/{receita}/ingredientes',    [ReceitaController::class, 'editIngredientes'])->name('receitas.ingredientes.edit');
     Route::post('/receitas/{receita}/ingredientes',   [IngredienteController::class, 'store'])->name('receitas.ingredientes.store');
     Route::delete('/receitas/{receita}/ingredientes/{ingrediente}', [IngredienteController::class, 'destroy'])->name('receitas.ingredientes.destroy');
@@ -64,6 +66,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/receitas/{receita}/passos',         [PassoController::class, 'store'])->name('receitas.passos.store');
     Route::delete('/receitas/{receita}/passos/{passo}', [PassoController::class, 'destroy'])->name('receitas.passos.destroy');
 
-    // Publicar
     Route::post('/receitas/{receita}/publicar',       [ReceitaController::class, 'publicar'])->name('receitas.publicar');
 });
