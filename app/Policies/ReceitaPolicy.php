@@ -8,6 +8,15 @@ use Illuminate\Auth\Access\Response;
 
 class ReceitaPolicy
 {
+    public function update(User $user, Receita $receita): bool
+    {
+        return $user->id === $receita->user_id;
+    }
+
+    public function delete(User $user, Receita $receita): bool
+    {
+        return $user->id === $receita->user_id;
+    }
     /**
      * Determine whether the user can view any models.
      */
@@ -28,22 +37,6 @@ class ReceitaPolicy
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Receita $receita): bool
-    {
-        return true;
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Receita $receita): bool
     {
         return false;
     }
