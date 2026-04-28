@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Receita;
+use App\Helpers\YoutubeHelper;
 
 class ReceitaController extends Controller
 {
@@ -29,15 +30,23 @@ class ReceitaController extends Controller
             'tempo_preparo'  => ['nullable', 'string', 'max:50'],
             'dificuldade'    => ['nullable', 'in:fácil,médio,difícil'],
             'custo_medio'    => ['nullable', 'numeric', 'min:0'],
-            'endereco_video' => ['nullable', 'url', 'max:500'],
+            'endereco_video' => [
+                'nullable',
+                'string',
+                'max:500',
+                function ($attribute, $value, $fail) {
+                    if ($value && !YoutubeHelper::isValid($value)) {
+                        $fail('Insira uma URL válida do YouTube (youtube.com/watch?v=... ou youtu.be/...).');
+                    }
+                },
+            ],
         ], [
             'titulo.required'     => 'O título da receita é obrigatório.',
             'titulo.max'          => 'O título não pode ultrapassar 255 caracteres.',
             'descricao.required'  => 'A descrição é obrigatória.',
             'dificuldade.in'      => 'Selecione uma dificuldade válida.',
             'custo_medio.numeric' => 'O custo médio deve ser um número.',
-            'custo_medio.min'     => 'O custo médio não pode ser negativo.',
-            'endereco_video.url'  => 'Insira uma URL válida para o vídeo.',
+            'custo_medio.min'     => 'O custo médio não pode ser negativo.'
         ]);
 
         $receita = Receita::create(array_merge($resp, [
@@ -74,15 +83,23 @@ class ReceitaController extends Controller
             'tempo_preparo'  => ['nullable', 'string', 'max:50'],
             'dificuldade'    => ['nullable', 'in:fácil,médio,difícil'],
             'custo_medio'    => ['nullable', 'numeric', 'min:0'],
-            'endereco_video' => ['nullable', 'url', 'max:500'],
+            'endereco_video' => [
+                'nullable',
+                'string',
+                'max:500',
+                function ($attribute, $value, $fail) {
+                    if ($value && !YoutubeHelper::isValid($value)) {
+                        $fail('Insira uma URL válida do YouTube (youtube.com/watch?v=... ou youtu.be/...).');
+                    }
+                },
+            ],
         ], [
             'titulo.required'     => 'O título da receita é obrigatório.',
             'titulo.max'          => 'O título não pode ultrapassar 255 caracteres.',
             'descricao.required'  => 'A descrição é obrigatória.',
             'dificuldade.in'      => 'Selecione uma dificuldade válida.',
             'custo_medio.numeric' => 'O custo médio deve ser um número.',
-            'custo_medio.min'     => 'O custo médio não pode ser negativo.',
-            'endereco_video.url'  => 'Insira uma URL válida para o vídeo.',
+            'custo_medio.min'     => 'O custo médio não pode ser negativo.'
         ]);
 
         $receita->update($res);
