@@ -46,4 +46,10 @@ class Receita extends Model
     {
         return $this->ingredientes()->exists() && $this->passos()->exists();
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
+

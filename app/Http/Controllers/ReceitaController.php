@@ -8,15 +8,6 @@ use App\Helpers\YoutubeHelper;
 
 class ReceitaController extends Controller
 {
-    public function index()
-    {
-        $receitas = Receita::with(['ingredientes', 'passos', 'user'])
-            ->where('status', 'publicada')
-            ->latest()
-            ->get();
-        return view('receitas.index', compact('receitas'));
-    }
-
     public function create()
     {
         return view('receitas.create');
@@ -135,12 +126,45 @@ class ReceitaController extends Controller
     }
 
     public function show(Receita $receita)
-{
-    // Só exibe receitas publicadas (visitantes não veem rascunhos)
-    abort_if($receita->status !== 'publicada', 404);
+    {
+        // Só exibe receitas publicadas (visitantes não veem rascunhos)
+        abort_if($receita->status !== 'publicada', 404);
 
-    $receita->load(['user', 'ingredientes', 'passos', 'curtidas']);
+        $receita->load(['user', 'ingredientes', 'passos', 'curtidas']);
 
-    return view('receitas.show', compact('receita'));
-}
+        return view('receitas.show', compact('receita'));
+    }
+
+    public function index(Request $request)
+    {
+        $categories = \App\Models\Category::all();
+
+        $query = Receita::with(['user', 'ingredientes', 'category'])
+            ->withCount('curtidas')
+            ->where('status', 'publicada');
+
+        // Filtro por categoria
+        if ($request->filled('categoria')) {
+            $query->whereHas(
+                'category',
+                fn($q) =>
+                $q->where('slug', $request->categoria)
+            );
+        }
+
+        // Filtro por dificuldade
+        if ($request->filled('dificuldade')) {
+            $query->where('dificuldade', $request->dificuldade);
+        }
+
+        // Ordenação
+        match ($request->get('ordenar', 'recentes')) {
+            'curtidas' => $query->orderByDesc('curtidas_count'),
+            default    => $query->latest(),
+        };
+
+        $receitas = $query->paginate(9)->withQueryString();
+
+        return view('receitas.index', compact('receitas', 'categories'));
+    }
 }
