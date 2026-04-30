@@ -599,6 +599,11 @@
     flex-direction: row;
     gap: 5px;
     align-items: center;
+    text-decoration: none;
+
+    & span {
+        font-weight: bold;
+    }
 }
 
 /* ══════════════════════════════════════════════════
