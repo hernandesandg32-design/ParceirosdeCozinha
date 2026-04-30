@@ -142,16 +142,25 @@
         @endif
     </div>
 
-    {{-- VÍDEO --}}
-    @if($receita->endereco_video)
-        <div class="show-card">
-            <h2 class="show-card__title">🎬 Vídeo</h2>
-            <a href="{{ $receita->endereco_video }}" target="_blank" class="btn-hero btn-hero--outline" style="display:inline-flex">
-                Assistir vídeo →
-            </a>
-        </div>
-    @endif
+{{-- VÍDEO --}}
+@php
+    $embedUrl = \App\Helpers\YoutubeHelper::toEmbed($receita->endereco_video);
+@endphp
 
+@if($embedUrl)
+    <div class="show-card show-card--video">
+        <h2 class="show-card__title">🎬 Vídeo da Receita</h2>
+        <div class="show-video-wrap">
+            <iframe
+                src="{{ $embedUrl }}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                title="Vídeo: {{ $receita->titulo }}"
+            ></iframe>
+        </div>
+    </div>
+@endif
 </div>
 
 {{-- AÇÕES DO DONO --}}
@@ -473,6 +482,26 @@
     .show-header__img-wrap { height: 250px; }
     .show-header__info { padding: 1.5rem; }
     .show-body { grid-template-columns: 1fr; }
+}
+
+.show-card--video {
+    grid-column: 1 / -1; /* ocupa as duas colunas do show-body */
+}
+
+.show-video-wrap {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+}
+
+.show-video-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
 }
 </style>
 @endpush
