@@ -104,8 +104,10 @@
 
                         {{-- Autor --}}
                         <div class="destaque-card__autor">
-                            <div class="autor-avatar">{{ mb_substr($receita->user->name, 0, 1) }}</div>
-                            <span>{{ $receita->user->name }}</span>
+                            <a href="{{ route('users.public', $receita->user) }}" class="autor-link">
+                                <div class="autor-avatar">{{ mb_substr($receita->user->name, 0, 1) }}</div>
+                                <span>{{ $receita->user->name }}</span>
+                            </a>
                         </div>
 
                         <h3 class="destaque-card__titulo">
@@ -591,6 +593,13 @@
 }
 
 .home-empty span { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
+
+.autor-link {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
 
 /* ══════════════════════════════════════════════════
    RESPONSIVO
