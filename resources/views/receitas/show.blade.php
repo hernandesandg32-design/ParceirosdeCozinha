@@ -5,33 +5,50 @@
 
 @section('content')
 
-{{-- CABEÇALHO --}}
+{{-- CABEÇALHO DE IMAGEM --}}
 <div class="show-header__img-wrap">
-    @php $imagens = $receita->imagens; $principal = $receita->imagemPrincipal(); @endphp
+    @php
+        $imagens = $receita->imagens;
+        $principal = $receita->imagemPrincipal();
+        // Criamos um array de URLs para o JavaScript navegar facilmente
+        $urlsImagens = $imagens->map(fn($img) => $img->url())->values();
+    @endphp
 
-    {{-- Imagem principal --}}
+    {{-- Imagem principal (Clicável para abrir modal) --}}
     <img
         id="show-img-principal"
         src="{{ $principal ? $principal->url() : asset('img/placeholder.png') }}"
         alt="{{ $receita->titulo }}"
         class="show-header__img"
+        style="cursor: zoom-in"
+        onclick="openModal(this.src)"
     >
 
-    {{-- Miniaturas (só aparece se tiver mais de 1 imagem) --}}
+    {{-- Botões de Navegação --}}
     @if($imagens->count() > 1)
+        <button class="nav-btn nav-btn--prev" onclick="changeImage(-1)">❮</button>
+        <button class="nav-btn nav-btn--next" onclick="changeImage(1)">❯</button>
+
+        {{-- Miniaturas (Agora com posicionamento absoluto sobre a imagem) --}}
         <div class="show-thumbnails">
-            @foreach($imagens as $img)
+            @foreach($imagens as $index => $img)
                 <button
                     type="button"
                     class="show-thumb {{ $img->principal ? 'show-thumb--ativo' : '' }}"
+                    data-index="{{ $index }}"
                     data-url="{{ $img->url() }}"
-                    title="Ver imagem"
                 >
-                    <img src="{{ $img->url() }}" alt="">
+                    <img src="{{ $img->url() }}" alt="Miniatura">
                 </button>
             @endforeach
         </div>
     @endif
+</div>
+
+{{-- MODAL PARA IMAGEM CHEIA --}}
+<div id="imageModal" class="recipe-modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="imgFull">
 </div>
 
 {{-- CONTEÚDO PRINCIPAL --}}
@@ -146,6 +163,67 @@
     principal.style.transition = 'opacity 0.15s ease';
 })();
 </script>
+
+<script>
+    (function () {
+        const principal = document.getElementById('show-img-principal');
+        const thumbs = document.querySelectorAll('.show-thumb');
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('imgFull');
+
+        // Lista de URLs vinda do Blade
+        const images = @json($urlsImagens);
+        let currentIndex = 0;
+
+        // Função para mudar a imagem principal
+        window.updateGallery = function(index) {
+            currentIndex = index;
+
+            // Efeito de fade
+            principal.style.opacity = '0.5';
+
+            setTimeout(() => {
+                principal.src = images[currentIndex];
+                principal.style.opacity = '1';
+
+                // Atualiza borda das thumbs
+                thumbs.forEach((t, i) => {
+                    t.classList.toggle('show-thumb--ativo', i === currentIndex);
+                });
+            }, 100);
+        }
+
+        // Navegação Next/Prev
+        window.changeImage = function(step) {
+            let newIndex = currentIndex + step;
+            if (newIndex >= images.length) newIndex = 0;
+            if (newIndex < 0) newIndex = images.length - 1;
+            updateGallery(newIndex);
+        }
+
+        // Modal
+        window.openModal = function(src) {
+            modal.style.display = "flex";
+            modalImg.src = src;
+        }
+
+        window.closeModal = function() {
+            modal.style.display = "none";
+        }
+
+        // Eventos dos cliques nas Thumbs
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', function () {
+                updateGallery(parseInt(this.dataset.index));
+            });
+        });
+
+        // Fechar modal com a tecla Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") closeModal();
+        });
+    })();
+    </script>
 @endpush
 
 @push('styles')
@@ -172,6 +250,7 @@
 }
 
 .show-header__img-wrap {
+    position: relative;
     height: 420px;
     overflow: hidden;
     background: var(--ciano-light);
@@ -496,5 +575,80 @@
 
 .show-thumb:hover           { border-color: #fff; transform: scale(1.05); }
 .show-thumb--ativo          { border-color: #e85d2f; }
+
+/* Botões de Navegação (Next/Prev) */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    padding: 15px 10px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: 0.3s;
+    z-index: 10;
+    border-radius: 0 5px 5px 0;
+}
+
+.nav-btn:hover { background: var(--laranja); }
+.nav-btn--next { right: 0; border-radius: 5px 0 0 5px; }
+.nav-btn--prev { left: 0; }
+
+/* Correção das Miniaturas */
+.show-thumbnails {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7)); /* Gradiente para facilitar leitura */
+    z-index: 5;
+}
+
+.show-thumb {
+    width: 60px;
+    height: 45px;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.show-thumb--ativo { border-color: var(--laranja); transform: scale(1.1); }
+
+/* ESTILOS DO MODAL */
+.recipe-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
 </style>
 @endpush
