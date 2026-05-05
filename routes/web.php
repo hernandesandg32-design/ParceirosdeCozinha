@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\CurtidaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReceitaImagemController;
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -30,6 +31,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Publicar
 
     Route::post('/receitas/{receita}/publicar',       [ReceitaController::class, 'publicar'])->name('receitas.publicar');
+
+    Route::post('/receitas/{receita}/imagens',                        [ReceitaImagemController::class, 'store'])->name('receitas.imagens.store');
+Route::delete('/receitas/{receita}/imagens/{imagem}',             [ReceitaImagemController::class, 'destroy'])->name('receitas.imagens.destroy');
+Route::post('/receitas/{receita}/imagens/{imagem}/principal',     [ReceitaImagemController::class, 'setPrincipal'])->name('receitas.imagens.principal');
 });
 
 

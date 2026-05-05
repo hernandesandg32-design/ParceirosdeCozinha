@@ -30,6 +30,17 @@ class Receita extends Model
         return $this->hasMany(Passo::class)->orderBy('ordem');
     }
 
+    public function imagens()
+{
+    return $this->hasMany(ReceitaImagem::class)->orderBy('ordem');
+}
+
+public function imagemPrincipal(): ?ReceitaImagem
+{
+    return $this->imagens->firstWhere('principal', true)
+        ?? $this->imagens->first();
+}
+
     public function curtidas()
     {
         return $this->hasMany(Curtida::class);

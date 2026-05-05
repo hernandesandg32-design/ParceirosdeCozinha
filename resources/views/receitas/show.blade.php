@@ -6,100 +6,32 @@
 @section('content')
 
 {{-- CABEÇALHO --}}
-<div class="show-header">
-    <div class="show-header__img-wrap">
-        @if($receita->imagem)
-            <img src="{{ asset('storage/' . $receita->imagem) }}" alt="{{ $receita->titulo }}" class="show-header__img">
-        @else
-            <div class="show-header__img-placeholder">🍳</div>
-        @endif
-    </div>
+<div class="show-header__img-wrap">
+    @php $imagens = $receita->imagens; $principal = $receita->imagemPrincipal(); @endphp
 
-    <div class="show-header__info">
-        <div class="show-header__badges">
-            @if($receita->dificuldade)
-                <span class="show-badge show-badge--dif show-badge--{{ $receita->dificuldade }}">
-                    {{ ucfirst($receita->dificuldade) }}
-                </span>
-            @endif
+    {{-- Imagem principal --}}
+    <img
+        id="show-img-principal"
+        src="{{ $principal ? $principal->url() : asset('img/placeholder.png') }}"
+        alt="{{ $receita->titulo }}"
+        class="show-header__img"
+    >
+
+    {{-- Miniaturas (só aparece se tiver mais de 1 imagem) --}}
+    @if($imagens->count() > 1)
+        <div class="show-thumbnails">
+            @foreach($imagens as $img)
+                <button
+                    type="button"
+                    class="show-thumb {{ $img->principal ? 'show-thumb--ativo' : '' }}"
+                    data-url="{{ $img->url() }}"
+                    title="Ver imagem"
+                >
+                    <img src="{{ $img->url() }}" alt="">
+                </button>
+            @endforeach
         </div>
-
-        <h1 class="show-header__titulo">{{ $receita->titulo }}</h1>
-        <p class="show-header__descricao">{{ $receita->descricao }}</p>
-
-        {{-- META --}}
-        <div class="show-meta">
-            @if($receita->tempo_preparo)
-                <div class="show-meta__item">
-                    <span class="show-meta__icon">⏱</span>
-                    <div>
-                        <small>Tempo</small>
-                        <strong>{{ $receita->tempo_preparo }}</strong>
-                    </div>
-                </div>
-            @endif
-            <div class="show-meta__item">
-                <span class="show-meta__icon">🥕</span>
-                <div>
-                    <small>Ingredientes</small>
-                    <strong>{{ $receita->ingredientes->count() }}</strong>
-                </div>
-            </div>
-            <div class="show-meta__item">
-                <span class="show-meta__icon">📋</span>
-                <div>
-                    <small>Passos</small>
-                    <strong>{{ $receita->passos->count() }}</strong>
-                </div>
-            </div>
-            @if($receita->custo_medio)
-                <div class="show-meta__item">
-                    <span class="show-meta__icon">💰</span>
-                    <div>
-                        <small>Custo médio</small>
-                        <strong>R$ {{ number_format($receita->custo_medio, 2, ',', '.') }}</strong>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        {{-- AUTOR + CURTIDA --}}
-        <div class="show-autor">
-            <div class="autor-avatar autor-avatar--lg">
-                {{ mb_substr($receita->user->name, 0, 1) }}
-            </div>
-            <div>
-                <small style="color:#6b7280">Receita de</small>
-                <p style="margin:0;font-weight:700;color:#1a1a2e">{{ $receita->user->name }}</p>
-            </div>
-
-            <div class="ms-auto">
-                @auth
-                    <form action="{{ route('receitas.curtir', $receita) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="btn-curtida-lg {{ $receita->curtidaPorMim() ? 'btn-curtida-lg--ativo' : '' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="{{ $receita->curtidaPorMim() ? 'currentColor' : 'none' }}"
-                                stroke="currentColor" stroke-width="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
-                            {{ $receita->curtidas->count() }}
-                            {{ $receita->curtidaPorMim() ? 'Curtido' : 'Curtir' }}
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="btn-curtida-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        {{ $receita->curtidas->count() }} Curtir
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </div>
+    @endif
 </div>
 
 {{-- CONTEÚDO PRINCIPAL --}}
@@ -188,6 +120,33 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const principal = document.getElementById('show-img-principal');
+    const thumbs    = document.querySelectorAll('.show-thumb');
+
+    thumbs.forEach(thumb => {
+        thumb.addEventListener('click', function () {
+            // Atualiza a imagem principal com fade
+            principal.style.opacity = '0';
+            setTimeout(() => {
+                principal.src = this.dataset.url;
+                principal.style.opacity = '1';
+            }, 150);
+
+            // Atualiza o estado ativo das miniaturas
+            thumbs.forEach(t => t.classList.remove('show-thumb--ativo'));
+            this.classList.add('show-thumb--ativo');
+        });
+    });
+
+    // Adiciona transição suave à imagem principal
+    principal.style.transition = 'opacity 0.15s ease';
+})();
+</script>
+@endpush
 
 @push('styles')
 <style>
@@ -503,5 +462,39 @@
     width: 100%; height: 100%;
     border: none;
 }
+
+/* ── THUMBNAILS ──────────────────────────────────────── */
+.show-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.show-thumb {
+    flex-shrink: 0;
+    width: 64px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    background: none;
+}
+
+.show-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.show-thumb:hover           { border-color: #fff; transform: scale(1.05); }
+.show-thumb--ativo          { border-color: #e85d2f; }
 </style>
 @endpush
