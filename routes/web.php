@@ -33,8 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/receitas/{receita}/publicar',       [ReceitaController::class, 'publicar'])->name('receitas.publicar');
 
     Route::post('/receitas/{receita}/imagens',                        [ReceitaImagemController::class, 'store'])->name('receitas.imagens.store');
-Route::delete('/receitas/{receita}/imagens/{imagem}',             [ReceitaImagemController::class, 'destroy'])->name('receitas.imagens.destroy');
-Route::post('/receitas/{receita}/imagens/{imagem}/principal',     [ReceitaImagemController::class, 'setPrincipal'])->name('receitas.imagens.principal');
+    Route::delete('/receitas/{receita}/imagens/{imagem}',             [ReceitaImagemController::class, 'destroy'])->name('receitas.imagens.destroy');
+    Route::post('/receitas/{receita}/imagens/{imagem}/principal',     [ReceitaImagemController::class, 'setPrincipal'])->name('receitas.imagens.principal');
 });
 
 
