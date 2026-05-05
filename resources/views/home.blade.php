@@ -82,9 +82,14 @@
 
                     {{-- IMAGEM --}}
                     <a href="{{ route('receitas.show', $receita) }}" class="destaque-card__img-link">
-                        @if($receita->imagem)
+                        @php
+                            $imagens = $receita->imagens;
+                            $principal = $receita->imagemPrincipal();
+                        @endphp
+
+                        @if($principal)
                             <img
-                                src="{{ asset('storage/' . $receita->imagem) }}"
+                                src="{{ $principal ? $principal->url() : asset('img/placeholder.png') }}"
                                 alt="{{ $receita->titulo }}"
                                 class="destaque-card__img"
                             >
