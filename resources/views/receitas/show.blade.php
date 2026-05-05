@@ -635,10 +635,15 @@
 }
 
 .modal-content {
+    margin: auto;
+    display: block;
+    width: auto;
+    height: auto;
     max-width: 90%;
     max-height: 90%;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 .close-modal {
