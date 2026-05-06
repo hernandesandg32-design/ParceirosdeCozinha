@@ -1,7 +1,7 @@
 {{-- resources/views/home.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Parceiros de Cozinha')
+@section('title', '🍳 𝓟𝓪𝓻𝓬𝓮𝓲𝓻𝓸𝓼 𝓭𝓮 𝓒𝓸𝔃𝓲𝓷𝓱𝓪')
 
 @section('content')
 
@@ -9,7 +9,7 @@
 <section class="home-hero">
     <div class="home-hero__content">
         <p class="home-hero__eyebrow">Bem-vindo ao</p>
-        <h1 class="home-hero__title">Parceiros de<br><span>Cozinha</span></h1>
+        <h1 class="home-hero__title">𝓟𝓪𝓻𝓬𝓮𝓲𝓻𝓸𝓼 𝓭𝓮<br><span>𝓒𝓸𝔃𝓲𝓷𝓱𝓪</span></h1>
         <p class="home-hero__subtitle">
             Descubra, compartilhe e se apaixone por receitas feitas com carinho.
             Uma comunidade para quem ama cozinhar.
@@ -192,12 +192,11 @@ VARIÁVEIS
 ══════════════════════════════════════════════════ */
 :root {
     --laranja:      #e85d2f;
-    --laranja-dark: #c44d22;
-    --ciano:        #8df7e7;
-    --ciano-dark:   #5ee8d4;
-    --ciano-light:  #e8fdfb;
+    --laranja-dark: #902c07;
+    --ciano:        #cf6c2e;
+    --ciano-light:  #f6cab6;
     --text-dark:    #1a1a2e;
-    --text-muted:   #6b7280;
+    --text-muted:   #020a1b;
     --white:        #ffffff;
     --radius:       14px;
     --shadow:       0 4px 20px rgba(0,0,0,0.08);
@@ -367,11 +366,11 @@ VARIÁVEIS
     background: var(--laranja);
     border-color: var(--laranja);
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(232,93,47,0.25);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.561);
 }
 
 .categoria-card:hover .categoria-card__nome {
-    color: #fff;
+    color: #ffffff;
 }
 
 .categoria-card__emoji {
