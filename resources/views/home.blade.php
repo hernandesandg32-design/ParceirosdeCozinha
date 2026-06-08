@@ -43,16 +43,10 @@
     </div>
 
     <div class="categorias-grid">
-        @foreach ([
-            ['emoji' => '🍝', 'nome' => 'Massas'],
-            ['emoji' => '🍰', 'nome' => 'Doces'],
-            ['emoji' => '🥩', 'nome' => 'Carnes'],
-            ['emoji' => '🥗', 'nome' => 'Vegano'],
-            ['emoji' => '🥤', 'nome' => 'Bebidas'],
-        ] as $categoria)
-            <a href="{{ route('receitas.index') }}" class="categoria-card">
-                <span class="categoria-card__emoji">{{ $categoria['emoji'] }}</span>
-                <span class="categoria-card__nome">{{ $categoria['nome'] }}</span>
+        @foreach ($categorias as $categoria)
+            <a href="{{ route('receitas.index', ['categoria' => $categoria->id]) }}" class="categoria-card">
+                <span class="categoria-card__emoji">{{ $categoria->emoji }}</span>
+                <span class="categoria-card__nome">{{ $categoria->nome }}</span>
             </a>
         @endforeach
     </div>

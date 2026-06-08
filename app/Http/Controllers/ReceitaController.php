@@ -154,22 +154,35 @@ class ReceitaController extends Controller
     {
         $categories = \App\Models\Category::all();
 
+        $categoriaId = $request->categoria;
+
         $query = Receita::with(['user', 'ingredientes', 'category'])
             ->withCount('curtidas')
             ->where('status', 'publicada');
 
         // Filtro por categoria
-        if ($request->filled('categoria')) {
+        if (($request->filled('categoria') && $request->categoria !== 'todas') || $categoriaId) {
+            if ($categoriaId) {
+                $request->merge(['categoria' => $categories->find($categoriaId)->slug]);
+            }
+
             $query->whereHas(
                 'category',
-                fn($q) =>
-                $q->where('slug', $request->categoria)
+                fn($q) => $q->where('slug', $request->categoria)
             );
         }
 
         // Filtro por dificuldade
         if ($request->filled('dificuldade')) {
             $query->where('dificuldade', $request->dificuldade);
+        }
+
+        if ($request->filled('busca')) {
+            $termo = $request->busca;
+            $query->where(function ($q) use ($termo) {
+                $q->where('titulo', 'like', "%{$termo}%")
+                    ->orWhere('descricao', 'like', "%{$termo}%");
+            });
         }
 
         // Ordenação

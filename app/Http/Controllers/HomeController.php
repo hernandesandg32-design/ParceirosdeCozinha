@@ -13,9 +13,11 @@ class HomeController extends Controller
         ->where('status', 'publicada')
         ->withCount('curtidas')
         ->latest()
-        ->take(6)
+        ->take(15)
         ->get();
 
-    return view('home', compact('receitas'));
+        $categorias = \App\Models\Category::all();
+
+        return view('home', compact('receitas', 'categorias'));
     }
 }

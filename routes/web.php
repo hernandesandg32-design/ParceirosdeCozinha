@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/receitas/{receita}', [ReceitaController::class, 'show'])->name('receitas.show');
-Route::get('/receitas', [ReceitaController::class, 'index'])->name('receitas.index');
+Route::get('/receitas/', [ReceitaController::class, 'index'])->name('receitas.index');
 
 // Perfil público — acessível por qualquer pessoa (ex: via card de receita)
 Route::get('/u/{user}', [UserController::class, 'publicProfile'])->name('users.public');
