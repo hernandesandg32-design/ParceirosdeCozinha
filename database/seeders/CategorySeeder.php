@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
@@ -12,14 +12,13 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Category::insert([
+            ['nome' => 'Bebidas',  'emoji' => '🥤', 'slug' => 'bebidas'],
+            ['nome' => 'Vegano',   'emoji' => '🥗', 'slug' => 'vegano'],
+            ['nome' => 'Carnes',   'emoji' => '🥩', 'slug' => 'carnes'],
+            ['nome' => 'Doces',    'emoji' => '🍰', 'slug' => 'doces'],
+            ['nome' => 'Massas',   'emoji' => '🍝', 'slug' => 'massas'],
+        ]);
     }
 
-    Category::insert([
-    ['nome' => 'Bebidas',  'emoji' => '🥤', 'slug' => 'bebidas'],
-    ['nome' => 'Vegano',   'emoji' => '🥗', 'slug' => 'vegano'],
-    ['nome' => 'Carnes',   'emoji' => '🥩', 'slug' => 'carnes'],
-    ['nome' => 'Doces',    'emoji' => '🍰', 'slug' => 'doces'],
-    ['nome' => 'Massas',   'emoji' => '🍝', 'slug' => 'massas'],
-]);
 }

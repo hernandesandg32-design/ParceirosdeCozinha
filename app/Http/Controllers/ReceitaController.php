@@ -147,14 +147,21 @@ class ReceitaController extends Controller
         if ($request->filled('categoria')) {
             $query->whereHas(
                 'category',
-                fn($q) =>
-                $q->where('slug', $request->categoria)
+                fn($q) => $q->where('slug', $request->categoria)
             );
         }
 
         // Filtro por dificuldade
         if ($request->filled('dificuldade')) {
             $query->where('dificuldade', $request->dificuldade);
+        }
+
+        if ($request->filled('busca')) {
+            $termo = $request->busca;
+            $query->where(function ($q) use ($termo) {
+                $q->where('titulo', 'like', "%{$termo}%")
+                    ->orWhere('descricao', 'like', "%{$termo}%");
+            });
         }
 
         // Ordenação
