@@ -51,9 +51,80 @@
     <img class="modal-content" id="imgFull">
 </div>
 
+{{-- CABEÇALHO DA RECEITA --}}
+<div class="show-header">
+    <div class="show-header__info">
+
+        {{-- Categoria --}}
+        @if($receita->category)
+            <span class="badge bg-warning text-dark">
+                {{ $receita->category->emoji }}
+                {{ $receita->category->nome }}
+            </span>
+        @endif
+
+        {{-- Título --}}
+        <h1 class="show-header__titulo">
+            {{ $receita->titulo }}
+        </h1>
+
+        {{-- Descrição --}}
+        @if($receita->descricao)
+            <p class="show-header__descricao">
+                {{ $receita->descricao }}
+            </p>
+        @endif
+
+        {{-- Informações --}}
+        <div class="show-meta">
+
+            <div class="show-meta__item">
+                <span class="show-meta__icon">⏱️</span>
+                <div>
+                    <small>Tempo</small>
+                    <strong>{{ $receita->tempo_preparo }}</strong>
+                </div>
+            </div>
+
+            <div class="show-meta__item">
+                <span class="show-meta__icon">🔥</span>
+                <div>
+                    <small>Dificuldade</small>
+                    <strong>{{ $receita->dificuldade }}</strong>
+                </div>
+            </div>
+
+            <div class="show-meta__item">
+                <span class="show-meta__icon">💰</span>
+                <div>
+                    <small>Custo</small>
+                    <strong>{{ $receita->custo_medio }}</strong>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- Autor --}}
+        <div class="show-autor">
+            <div class="autor-avatar--lg">
+                {{ strtoupper(substr($receita->user->name, 0, 1)) }}
+            </div>
+
+            <div>
+                <strong>{{ $receita->user->name }}</strong>
+                <br>
+                <small class="text-muted">
+                    Publicado em
+                    {{ optional($receita->data_publicacao)->format('d/m/Y') }}
+                </small>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 {{-- CONTEÚDO PRINCIPAL --}}
 <div class="show-body">
-
     {{-- INGREDIENTES --}}
     <div class="show-card">
         <h2 class="show-card__title">🥕 Ingredientes</h2>
@@ -654,6 +725,11 @@
     font-size: 40px;
     font-weight: bold;
     cursor: pointer;
+}
+
+.show-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 </style>
 @endpush

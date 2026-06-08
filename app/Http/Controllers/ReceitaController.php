@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Receita;
 use App\Helpers\YoutubeHelper;
+use App\Models\Category;
 
 class ReceitaController extends Controller
 {
     public function create()
     {
-        return view('receitas.create');
+        $categorias = Category::orderBy('nome')->get();
+
+        return view('receitas.create', compact('categorias'));
     }
 
     public function store(Request $request)
@@ -38,6 +41,12 @@ class ReceitaController extends Controller
             'dificuldade.in'      => 'Selecione uma dificuldade válida.',
             'custo_medio.numeric' => 'O custo médio deve ser um número.',
             'custo_medio.min'     => 'O custo médio não pode ser negativo.'
+        ]);
+
+        $request->validate([
+            'titulo' => 'required|max:255',
+            'descricao' => 'required',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $receita = Receita::create(array_merge($resp, [
@@ -98,6 +107,12 @@ class ReceitaController extends Controller
         return redirect()
             ->route('receitas.edit', $receita)
             ->with('success', 'Receita atualizada com sucesso!');
+
+            $request->validate([
+                'titulo' => 'required|max:255',
+                'descricao' => 'required',
+                'category_id' => 'required|exists:categories,id',
+            ]);
     }
 
     public function publicar(Receita $receita)

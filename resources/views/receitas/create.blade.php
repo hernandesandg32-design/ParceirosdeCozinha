@@ -76,6 +76,39 @@
                 </div>
 
                 <div class="col-md-4">
+                    <label class="form-label">
+                        Categoria
+                    </label>
+
+                    <select
+                        name="category_id"
+                        class="form-select @error('category_id') is-invalid @enderror">
+
+                        <option value="">
+                            Selecione uma categoria...
+                        </option>
+
+                        @foreach($categorias as $categoria)
+                            <option
+                                value="{{ $categoria->id }}"
+                                {{ old('category_id') == $categoria->id ? 'selected' : '' }}>
+
+                                {{ $categoria->emoji }}
+                                {{ $categoria->nome }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    @error('category_id')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
                     <label class="form-label">Custo médio (R$)</label>
                     <input type="number" name="custo_medio" value="{{ old('custo_medio') }}"
                         class="form-control @error('custo_medio') is-invalid @enderror" placeholder="Ex: 25.00"

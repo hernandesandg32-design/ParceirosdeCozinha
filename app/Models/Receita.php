@@ -8,7 +8,7 @@ class Receita extends Model
 {
     protected $fillable = [
         'titulo', 'descricao', 'tempo_preparo', 'dificuldade',
-        'custo_medio', 'endereco_video', 'image', 'status', 'data_publicacao', 'user_id',
+        'custo_medio', 'endereco_video', 'image', 'status', 'data_publicacao', 'user_id','category_id',
     ];
 
     protected $casts = [
