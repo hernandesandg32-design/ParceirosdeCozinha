@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Receita;
 use App\Helpers\YoutubeHelper;
+use App\Models\Category;
 
 class ReceitaController extends Controller
 {
@@ -139,12 +140,18 @@ class ReceitaController extends Controller
     {
         $categories = \App\Models\Category::all();
 
+        $categoriaId = $request->categoria;
+
         $query = Receita::with(['user', 'ingredientes', 'category'])
             ->withCount('curtidas')
             ->where('status', 'publicada');
 
         // Filtro por categoria
-        if ($request->filled('categoria')) {
+        if (($request->filled('categoria') && $request->categoria !== 'todas') || $categoriaId) {
+            if ($categoriaId) {
+                $request->merge(['categoria' => $categories->find($categoriaId)->slug]);
+            }
+
             $query->whereHas(
                 'category',
                 fn($q) => $q->where('slug', $request->categoria)
