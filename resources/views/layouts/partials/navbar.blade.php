@@ -2,7 +2,7 @@
     <div class="container">
         <!-- LOGO -->
         <a class="navbar-brand" href="{{ route('home') }}">
-            🍳 Parceiros de Cozinha
+            🍳 𝓟𝓪𝓻𝓬𝓮𝓲𝓻𝓸𝓼 𝓭𝓮 𝓒𝓸𝔃𝓲𝓷𝓱𝓪
         </a>
 
         <!-- MOBILE -->

@@ -622,6 +622,82 @@
         .stats-row { gap: .4rem; }
         .stat-num { font-size: 1.5rem; }
     }
+
+    /* Container da thumb */
+.receita-thumb {
+    height: 220px;
+    background: linear-gradient(135deg, var(--orange-pale) 0%, #FFE4CC 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* Link ocupa toda área */
+.destaque-card__img-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+/* Imagem ajustada corretamente */
+.destaque-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .25s ease;
+}
+
+/* Hover elegante */
+.receita-card:hover .destaque-card__img {
+    transform: scale(1.05);
+}
+
+/* Placeholder */
+.destaque-card__img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--orange-pale), #FFE4CC);
+    color: var(--orange);
+}
+
+/* Badge dificuldade */
+.destaque-card__dificuldade {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 700;
+    color: #fff;
+    z-index: 2;
+    backdrop-filter: blur(4px);
+}
+
+.destaque-card__dificuldade--fácil {
+    background: rgba(22,163,74,.85);
+}
+
+.destaque-card__dificuldade--médio {
+    background: rgba(202,138,4,.85);
+}
+
+.destaque-card__dificuldade--difícil {
+    background: rgba(220,38,38,.85);
+}
+
+/* Badge status continua por cima */
+.receita-status-badge {
+    z-index: 3;
+}
 </style>
 
 {{-- ── MENSAGENS FLASH ─────────────────────────────────────────────────── --}}
@@ -720,6 +796,7 @@
     @endauth
 </div>
 
+
 @php
     $receitasVisiveis = (auth()->check() && auth()->id() === $user->id)
         ? $receitas
@@ -744,7 +821,32 @@
         @foreach ($receitasVisiveis as $receita)
             <div class="receita-card">
                 <div class="receita-thumb">
-                    🍽️
+                    {{-- IMAGEM --}}
+                    <div>
+                        <a href="{{ route('receitas.show', $receita) }}" class="destaque-card__img-link">
+                            @php
+                                $imagens = $receita->imagens;
+                                $principal = $receita->imagemPrincipal();
+                            @endphp
+
+                            @if($principal)
+                                <img
+                                    src="{{ $principal ? $principal->url() : asset('img/placeholder.png') }}"
+                                    alt="{{ $receita->titulo }}"
+                                    class="destaque-card__img"
+                                >
+                            @else
+                                <div class="destaque-card__img-placeholder">🍳</div>
+                            @endif
+
+                            @if($receita->dificuldade)
+                                <span class="destaque-card__dificuldade destaque-card__dificuldade--{{ $receita->dificuldade }}">
+                                    {{ ucfirst($receita->dificuldade) }}
+                                </span>
+                            @endif
+                        </a>
+                    </div>
+
                     <span class="receita-status-badge {{ $receita->status === 'publicado' ? 'badge-publicado' : 'badge-rascunho' }}">
                         {{ $receita->status === 'publicado' ? 'Publicado' : 'Rascunho' }}
                     </span>
@@ -776,7 +878,7 @@
                                     🥕 Ingredientes
                                 </a>
                                 <form action="{{ route('receitas.destroy', $receita) }}" method="POST"
-                                      onsubmit="return confirm('Deletar esta receita?')">
+                                    onsubmit="return confirm('Deletar esta receita?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn-card-delete">🗑</button>
                                 </form>
@@ -791,8 +893,8 @@
 
 
 {{-- ════════════════════════════════════════════════════════════════════════
-     MODAIS  (só renderizados para o dono do perfil)
-     ════════════════════════════════════════════════════════════════════════ --}}
+    MODAIS  (só renderizados para o dono do perfil)
+    ════════════════════════════════════════════════════════════════════════ --}}
 @auth
     @if (auth()->id() === $user->id)
 
@@ -871,11 +973,11 @@
                         <p style="font-size:.7rem; margin-top:.25rem;">JPG, PNG ou GIF — máx. 2 MB</p>
                     </label>
                     <input type="file" id="avatar-input" name="avatar"
-                           accept="image/*" style="display:none;"
-                           onchange="previewAvatar(this)">
+                        accept="image/*" style="display:none;"
+                        onchange="previewAvatar(this)">
                     <div id="avatar-preview" style="display:none; margin-top:1rem; text-align:center;">
                         <img id="avatar-preview-img" src="" alt="preview"
-                             style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--orange);">
+                            style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--orange);">
                     </div>
                     @error('avatar')
                         <small style="color:#E53935; font-size:.75rem; display:block; margin-top:.5rem;">{{ $message }}</small>

@@ -110,8 +110,10 @@
                     {{-- CORPO --}}
                     <div class="destaque-card__body">
                         <div class="destaque-card__autor">
-                            <div class="autor-avatar">{{ mb_substr($receita->user->name, 0, 1) }}</div>
-                            <span>{{ $receita->user->name }}</span>
+                            <a href="{{ route('users.public', $receita->user) }}" class="autor-link">
+                                <div class="autor-avatar">{{ mb_substr($receita->user->name, 0, 1) }}</div>
+                                <span>{{ $receita->user->name }}</span>
+                            </a>
                         </div>
                         <h3 class="destaque-card__titulo">
                             <a href="{{ route('receitas.show', $receita) }}">{{ $receita->titulo }}</a>

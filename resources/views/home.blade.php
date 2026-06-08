@@ -1,7 +1,7 @@
 {{-- resources/views/home.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Parceiros de Cozinha')
+@section('title', '🍳 𝓟𝓪𝓻𝓬𝓮𝓲𝓻𝓸𝓼 𝓭𝓮 𝓒𝓸𝔃𝓲𝓷𝓱𝓪')
 
 @section('content')
 
@@ -9,7 +9,7 @@
 <section class="home-hero">
     <div class="home-hero__content">
         <p class="home-hero__eyebrow">Bem-vindo ao</p>
-        <h1 class="home-hero__title">Parceiros de<br><span>Cozinha</span></h1>
+        <h1 class="home-hero__title">𝓟𝓪𝓻𝓬𝓮𝓲𝓻𝓸𝓼 𝓭𝓮<br><span>𝓒𝓸𝔃𝓲𝓷𝓱𝓪</span></h1>
         <p class="home-hero__subtitle">
             Descubra, compartilhe e se apaixone por receitas feitas com carinho.
             Uma comunidade para quem ama cozinhar.
@@ -76,9 +76,14 @@
 
                     {{-- IMAGEM --}}
                     <a href="{{ route('receitas.show', $receita) }}" class="destaque-card__img-link">
-                        @if($receita->imagem)
+                        @php
+                            $imagens = $receita->imagens;
+                            $principal = $receita->imagemPrincipal();
+                        @endphp
+
+                        @if($principal)
                             <img
-                                src="{{ asset('storage/' . $receita->imagem) }}"
+                                src="{{ $principal ? $principal->url() : asset('img/placeholder.png') }}"
                                 alt="{{ $receita->titulo }}"
                                 class="destaque-card__img"
                             >
@@ -98,8 +103,10 @@
 
                         {{-- Autor --}}
                         <div class="destaque-card__autor">
-                            <div class="autor-avatar">{{ mb_substr($receita->user->name, 0, 1) }}</div>
-                            <span>{{ $receita->user->name }}</span>
+                            <a href="{{ route('users.public', $receita->user) }}" class="autor-link">
+                                <div class="autor-avatar">{{ mb_substr($receita->user->name, 0, 1) }}</div>
+                                <span>{{ $receita->user->name }}</span>
+                            </a>
                         </div>
 
                         <h3 class="destaque-card__titulo">
@@ -175,16 +182,15 @@
 @push('styles')
 <style>
 /* ══════════════════════════════════════════════════
-   VARIÁVEIS
+VARIÁVEIS
 ══════════════════════════════════════════════════ */
 :root {
     --laranja:      #e85d2f;
-    --laranja-dark: #c44d22;
-    --ciano:        #8df7e7;
-    --ciano-dark:   #5ee8d4;
-    --ciano-light:  #e8fdfb;
+    --laranja-dark: #902c07;
+    --ciano:        #cf6c2e;
+    --ciano-light:  #f6cab6;
     --text-dark:    #1a1a2e;
-    --text-muted:   #6b7280;
+    --text-muted:   #020a1b;
     --white:        #ffffff;
     --radius:       14px;
     --shadow:       0 4px 20px rgba(0,0,0,0.08);
@@ -354,11 +360,11 @@
     background: var(--laranja);
     border-color: var(--laranja);
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(232,93,47,0.25);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.561);
 }
 
 .categoria-card:hover .categoria-card__nome {
-    color: #fff;
+    color: #ffffff;
 }
 
 .categoria-card__emoji {
@@ -585,6 +591,18 @@
 }
 
 .home-empty span { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
+
+.autor-link {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+    text-decoration: none;
+
+    & span {
+        font-weight: bold;
+    }
+}
 
 /* ══════════════════════════════════════════════════
    RESPONSIVO

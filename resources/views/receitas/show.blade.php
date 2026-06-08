@@ -5,101 +5,50 @@
 
 @section('content')
 
-{{-- CABEÇALHO --}}
-<div class="show-header">
-    <div class="show-header__img-wrap">
-        @if($receita->imagem)
-            <img src="{{ asset('storage/' . $receita->imagem) }}" alt="{{ $receita->titulo }}" class="show-header__img">
-        @else
-            <div class="show-header__img-placeholder">🍳</div>
-        @endif
-    </div>
+{{-- CABEÇALHO DE IMAGEM --}}
+<div class="show-header__img-wrap">
+    @php
+        $imagens = $receita->imagens;
+        $principal = $receita->imagemPrincipal();
+        // Criamos um array de URLs para o JavaScript navegar facilmente
+        $urlsImagens = $imagens->map(fn($img) => $img->url())->values();
+    @endphp
 
-    <div class="show-header__info">
-        <div class="show-header__badges">
-            @if($receita->dificuldade)
-                <span class="show-badge show-badge--dif show-badge--{{ $receita->dificuldade }}">
-                    {{ ucfirst($receita->dificuldade) }}
-                </span>
-            @endif
+    {{-- Imagem principal (Clicável para abrir modal) --}}
+    <img
+        id="show-img-principal"
+        src="{{ $principal ? $principal->url() : asset('img/placeholder.png') }}"
+        alt="{{ $receita->titulo }}"
+        class="show-header__img"
+        style="cursor: zoom-in"
+        onclick="openModal(this.src)"
+    >
+
+    {{-- Botões de Navegação --}}
+    @if($imagens->count() > 1)
+        <button class="nav-btn nav-btn--prev" onclick="changeImage(-1)">❮</button>
+        <button class="nav-btn nav-btn--next" onclick="changeImage(1)">❯</button>
+
+        {{-- Miniaturas (Agora com posicionamento absoluto sobre a imagem) --}}
+        <div class="show-thumbnails">
+            @foreach($imagens as $index => $img)
+                <button
+                    type="button"
+                    class="show-thumb {{ $img->principal ? 'show-thumb--ativo' : '' }}"
+                    data-index="{{ $index }}"
+                    data-url="{{ $img->url() }}"
+                >
+                    <img src="{{ $img->url() }}" alt="Miniatura">
+                </button>
+            @endforeach
         </div>
+    @endif
+</div>
 
-        <h1 class="show-header__titulo">{{ $receita->titulo }}</h1>
-        <p class="show-header__descricao">{{ $receita->descricao }}</p>
-
-        {{-- META --}}
-        <div class="show-meta">
-            @if($receita->tempo_preparo)
-                <div class="show-meta__item">
-                    <span class="show-meta__icon">⏱</span>
-                    <div>
-                        <small>Tempo</small>
-                        <strong>{{ $receita->tempo_preparo }}</strong>
-                    </div>
-                </div>
-            @endif
-            <div class="show-meta__item">
-                <span class="show-meta__icon">🥕</span>
-                <div>
-                    <small>Ingredientes</small>
-                    <strong>{{ $receita->ingredientes->count() }}</strong>
-                </div>
-            </div>
-            <div class="show-meta__item">
-                <span class="show-meta__icon">📋</span>
-                <div>
-                    <small>Passos</small>
-                    <strong>{{ $receita->passos->count() }}</strong>
-                </div>
-            </div>
-            @if($receita->custo_medio)
-                <div class="show-meta__item">
-                    <span class="show-meta__icon">💰</span>
-                    <div>
-                        <small>Custo médio</small>
-                        <strong>R$ {{ number_format($receita->custo_medio, 2, ',', '.') }}</strong>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        {{-- AUTOR + CURTIDA --}}
-        <div class="show-autor">
-            <div class="autor-avatar autor-avatar--lg">
-                {{ mb_substr($receita->user->name, 0, 1) }}
-            </div>
-            <div>
-                <small style="color:#6b7280">Receita de</small>
-                <p style="margin:0;font-weight:700;color:#1a1a2e">{{ $receita->user->name }}</p>
-            </div>
-
-            <div class="ms-auto">
-                @auth
-                    <form action="{{ route('receitas.curtir', $receita) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="btn-curtida-lg {{ $receita->curtidaPorMim() ? 'btn-curtida-lg--ativo' : '' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="{{ $receita->curtidaPorMim() ? 'currentColor' : 'none' }}"
-                                stroke="currentColor" stroke-width="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
-                            {{ $receita->curtidas->count() }}
-                            {{ $receita->curtidaPorMim() ? 'Curtido' : 'Curtir' }}
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="btn-curtida-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        {{ $receita->curtidas->count() }} Curtir
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </div>
+{{-- MODAL PARA IMAGEM CHEIA --}}
+<div id="imageModal" class="recipe-modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="imgFull">
 </div>
 
 {{-- CONTEÚDO PRINCIPAL --}}
@@ -189,6 +138,94 @@
 
 @endsection
 
+@push('scripts')
+<script>
+(function () {
+    const principal = document.getElementById('show-img-principal');
+    const thumbs    = document.querySelectorAll('.show-thumb');
+
+    thumbs.forEach(thumb => {
+        thumb.addEventListener('click', function () {
+            // Atualiza a imagem principal com fade
+            principal.style.opacity = '0';
+            setTimeout(() => {
+                principal.src = this.dataset.url;
+                principal.style.opacity = '1';
+            }, 150);
+
+            // Atualiza o estado ativo das miniaturas
+            thumbs.forEach(t => t.classList.remove('show-thumb--ativo'));
+            this.classList.add('show-thumb--ativo');
+        });
+    });
+
+    // Adiciona transição suave à imagem principal
+    principal.style.transition = 'opacity 0.15s ease';
+})();
+</script>
+
+<script>
+    (function () {
+        const principal = document.getElementById('show-img-principal');
+        const thumbs = document.querySelectorAll('.show-thumb');
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('imgFull');
+
+        // Lista de URLs vinda do Blade
+        const images = @json($urlsImagens);
+        let currentIndex = 0;
+
+        // Função para mudar a imagem principal
+        window.updateGallery = function(index) {
+            currentIndex = index;
+
+            // Efeito de fade
+            principal.style.opacity = '0.5';
+
+            setTimeout(() => {
+                principal.src = images[currentIndex];
+                principal.style.opacity = '1';
+
+                // Atualiza borda das thumbs
+                thumbs.forEach((t, i) => {
+                    t.classList.toggle('show-thumb--ativo', i === currentIndex);
+                });
+            }, 100);
+        }
+
+        // Navegação Next/Prev
+        window.changeImage = function(step) {
+            let newIndex = currentIndex + step;
+            if (newIndex >= images.length) newIndex = 0;
+            if (newIndex < 0) newIndex = images.length - 1;
+            updateGallery(newIndex);
+        }
+
+        // Modal
+        window.openModal = function(src) {
+            modal.style.display = "flex";
+            modalImg.src = src;
+        }
+
+        window.closeModal = function() {
+            modal.style.display = "none";
+        }
+
+        // Eventos dos cliques nas Thumbs
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', function () {
+                updateGallery(parseInt(this.dataset.index));
+            });
+        });
+
+        // Fechar modal com a tecla Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") closeModal();
+        });
+    })();
+    </script>
+@endpush
+
 @push('styles')
 <style>
 :root {
@@ -213,6 +250,7 @@
 }
 
 .show-header__img-wrap {
+    position: relative;
     height: 420px;
     overflow: hidden;
     background: var(--ciano-light);
@@ -502,6 +540,120 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     border: none;
+}
+
+/* ── THUMBNAILS ──────────────────────────────────────── */
+.show-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.show-thumb {
+    flex-shrink: 0;
+    width: 64px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+    background: none;
+}
+
+.show-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.show-thumb:hover           { border-color: #fff; transform: scale(1.05); }
+.show-thumb--ativo          { border-color: #e85d2f; }
+
+/* Botões de Navegação (Next/Prev) */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    padding: 15px 10px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: 0.3s;
+    z-index: 10;
+    border-radius: 0 5px 5px 0;
+}
+
+.nav-btn:hover { background: var(--laranja); }
+.nav-btn--next { right: 0; border-radius: 5px 0 0 5px; }
+.nav-btn--prev { left: 0; }
+
+/* Correção das Miniaturas */
+.show-thumbnails {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7)); /* Gradiente para facilitar leitura */
+    z-index: 5;
+}
+
+.show-thumb {
+    width: 60px;
+    height: 45px;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.show-thumb--ativo { border-color: var(--laranja); transform: scale(1.1); }
+
+/* ESTILOS DO MODAL */
+.recipe-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    margin: auto;
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
 }
 </style>
 @endpush
